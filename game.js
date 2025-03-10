@@ -272,14 +272,21 @@ function createTrack() {
         const curve = new THREE.CatmullRomCurve3(trackPoints);
         const trackGeometry = new THREE.TubeGeometry(curve, 100, 5, 8, false);
         const trackMaterial = new THREE.MeshStandardMaterial({
-            map: asphaltTexture,
+            color: 0x333333,
             roughness: 0.8,
             metalness: 0.2,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            map: asphaltTexture
         });
+        
+        // Configure texture wrapping
+        trackMaterial.map.wrapS = THREE.RepeatWrapping;
+        trackMaterial.map.wrapT = THREE.RepeatWrapping;
+        trackMaterial.map.repeat.set(4, 1);
         const trackBase = new THREE.Mesh(trackGeometry, trackMaterial);
         trackBase.position.y = 0.1;
         trackBase.receiveShadow = true;
+        trackBase.castShadow = true;
         scene.add(trackBase);
 
         // Create track outline (the racing line)
@@ -291,6 +298,7 @@ function createTrack() {
             linewidth: 2
         });
         track = new THREE.Line(trackLineGeometry, trackLineMaterial);
+        track.position.y = 0.3; // Raise the line above the track
         scene.add(track);
 
         // Create track barriers with reflective material
@@ -337,6 +345,7 @@ function createTrack() {
                 });
                 const checkpoint = new THREE.Mesh(checkpointGeometry, checkpointMaterial);
                 checkpoint.position.copy(point);
+                checkpoint.position.y += 0.2; // Raise checkpoints above track
                 checkpoint.castShadow = true;
                 checkpoint.receiveShadow = true;
                 scene.add(checkpoint);
@@ -351,7 +360,7 @@ function createTrack() {
                 });
                 const textMesh = new THREE.Mesh(textGeometry, textMaterial);
                 textMesh.position.copy(point);
-                textMesh.position.y += 1;
+                textMesh.position.y += 1.2; // Raise text above checkpoints
                 scene.add(textMesh);
 
                 checkpoints.push({
@@ -384,6 +393,7 @@ function createTrack() {
             });
             const cone = new THREE.Mesh(coneGeometry, coneMaterial);
             cone.position.copy(pos);
+            cone.position.y += 0.2; // Raise cones above track
             cone.castShadow = true;
             cone.receiveShadow = true;
             scene.add(cone);
@@ -397,7 +407,7 @@ function createTrack() {
             });
             const sign = new THREE.Mesh(signGeometry, signMaterial);
             sign.position.copy(pos);
-            sign.position.y += 1;
+            sign.position.y += 1.2; // Raise signs above track
             sign.rotation.y = Math.PI / 4;
             sign.castShadow = true;
             sign.receiveShadow = true;
@@ -413,11 +423,21 @@ function createTrack() {
         });
         const startLine = new THREE.Mesh(startLineGeometry, startLineMaterial);
         startLine.position.copy(trackPoints[0]);
-        startLine.position.y += 0.1;
+        startLine.position.y += 0.2; // Raise start line above track
         startLine.rotation.x = -Math.PI / 2;
         startLine.castShadow = true;
         startLine.receiveShadow = true;
         scene.add(startLine);
+
+        // Add ambient light to improve visibility
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+
+        // Add directional light for better shadows
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
 
         log('Track created successfully with textures');
     } catch (error) {
