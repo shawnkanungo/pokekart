@@ -1,3 +1,7 @@
+// Import Three.js
+import * as THREE from 'three';
+
+// Game state variables
 let scene, camera, renderer, car, track;
 let lapCount = 0;
 let checkpoints = [];
@@ -543,15 +547,5 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Start the game when the page loads
-window.addEventListener('load', function() {
-    if (typeof THREE === 'undefined') {
-        const errorElement = document.getElementById('error');
-        if (errorElement) {
-            errorElement.style.display = 'block';
-            errorElement.textContent = 'Error: Three.js not loaded';
-        }
-        return;
-    }
-    init();
-}); 
+// Start the game when the module is loaded
+init(); 
