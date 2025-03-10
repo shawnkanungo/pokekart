@@ -59,9 +59,9 @@ function init() {
         scene.background = new THREE.Color(0x87CEEB); // Sky blue
         log('Scene created');
 
-        // Create camera
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 5, 10);
+        // Create camera with adjusted position for larger track
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+        camera.position.set(0, 50, 100);
         camera.lookAt(0, 0, 0);
         log('Camera created');
 
@@ -245,38 +245,38 @@ function createTrack() {
         grass.receiveShadow = true;
         scene.add(grass);
 
-        // Define track points for a more interesting circuit
+        // Define track points for a more interesting circuit (10x larger)
         const trackPoints = [
             // Start/Finish straight
-            new THREE.Vector3(-40, 0.2, 0),
-            new THREE.Vector3(-20, 0.2, 0),
+            new THREE.Vector3(-400, 0.2, 0),
+            new THREE.Vector3(-200, 0.2, 0),
             // First curve
-            new THREE.Vector3(-10, 0.2, -10),
-            new THREE.Vector3(0, 0.2, -20),
+            new THREE.Vector3(-100, 0.2, -100),
+            new THREE.Vector3(0, 0.2, -200),
             // First straight
-            new THREE.Vector3(20, 0.2, -20),
+            new THREE.Vector3(200, 0.2, -200),
             // Second curve
-            new THREE.Vector3(30, 0.2, -10),
-            new THREE.Vector3(40, 0.2, 0),
+            new THREE.Vector3(300, 0.2, -100),
+            new THREE.Vector3(400, 0.2, 0),
             // Second straight
-            new THREE.Vector3(40, 0.2, 20),
+            new THREE.Vector3(400, 0.2, 200),
             // Third curve
-            new THREE.Vector3(30, 0.2, 30),
-            new THREE.Vector3(20, 0.2, 40),
+            new THREE.Vector3(300, 0.2, 300),
+            new THREE.Vector3(200, 0.2, 400),
             // Third straight
-            new THREE.Vector3(0, 0.2, 40),
+            new THREE.Vector3(0, 0.2, 400),
             // Fourth curve
-            new THREE.Vector3(-20, 0.2, 30),
-            new THREE.Vector3(-30, 0.2, 20),
+            new THREE.Vector3(-200, 0.2, 300),
+            new THREE.Vector3(-300, 0.2, 200),
             // Fourth straight
-            new THREE.Vector3(-30, 0.2, 0),
+            new THREE.Vector3(-300, 0.2, 0),
             // Final curve back to start
-            new THREE.Vector3(-40, 0.2, 0)
+            new THREE.Vector3(-400, 0.2, 0)
         ];
 
         // Create track surface using curved path
         const curve = new THREE.CatmullRomCurve3(trackPoints);
-        const trackGeometry = new THREE.TubeGeometry(curve, 200, 5, 8, false);
+        const trackGeometry = new THREE.TubeGeometry(curve, 2000, 5, 8, false);
         const trackMaterial = new THREE.MeshStandardMaterial({
             color: 0x808080, // Light gray
             roughness: 0.7,
@@ -319,10 +319,10 @@ function createTrack() {
                 direction.normalize();
 
                 // Create multiple barrier segments
-                const segments = Math.floor(length / 2);
+                const segments = Math.floor(length / 20); // Adjusted for larger track
                 for (let i = 0; i < segments; i++) {
                     const barrier = new THREE.Mesh(barrierGeometry, barrierMaterial);
-                    const position = point.clone().add(direction.clone().multiplyScalar(i * 2));
+                    const position = point.clone().add(direction.clone().multiplyScalar(i * 20));
                     barrier.position.copy(position);
                     barrier.scale.set(0.2, 0.5, 2); // Make barriers thin and tall
                     barrier.castShadow = true;
@@ -366,7 +366,7 @@ function createTrack() {
                 checkpoints.push({
                     mesh: checkpoint,
                     position: point,
-                    radius: 2,
+                    radius: 20, // Increased checkpoint radius for larger track
                     passed: false,
                     text: textMesh
                 });
@@ -375,10 +375,10 @@ function createTrack() {
 
         // Add track decorations
         const decorationPositions = [
-            new THREE.Vector3(-30, 0.2, 20),
-            new THREE.Vector3(30, 0.2, -20),
-            new THREE.Vector3(20, 0.2, 30),
-            new THREE.Vector3(-20, 0.2, -30)
+            new THREE.Vector3(-300, 0.2, 200),
+            new THREE.Vector3(300, 0.2, -200),
+            new THREE.Vector3(200, 0.2, 300),
+            new THREE.Vector3(-200, 0.2, -300)
         ];
 
         decorationPositions.forEach(pos => {
@@ -533,8 +533,8 @@ function createCar() {
         mesh: vehicleGroup,
         speed: 0,
         angle: 0,
-        acceleration: 0.1,
-        maxSpeed: 0.5,
+        acceleration: 1, // Increased for larger track
+        maxSpeed: 5, // Increased for larger track
         turnSpeed: 0.02,
         drift: false,
         boost: 0,
@@ -706,10 +706,10 @@ function update() {
         car.boost -= 0.01;
     }
 
-    // Update camera position
+    // Update camera position with adjusted distance for larger track
     camera.position.x = car.mesh.position.x;
-    camera.position.z = car.mesh.position.z + 10;
-    camera.position.y = 5;
+    camera.position.z = car.mesh.position.z + 100;
+    camera.position.y = 50;
     camera.lookAt(car.mesh.position);
 
     // Animate Pokémon
