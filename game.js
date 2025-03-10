@@ -231,13 +231,14 @@ function createItems() {
 // Create the racing track
 function createTrack() {
     try {
-        // Create grass base
+        // Create grass base with better material
         const grassGeometry = new THREE.PlaneGeometry(1000, 1000);
         const grassMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x90EE90,
-            roughness: 0.9,
+            color: 0x2d5a27,
+            roughness: 0.8,
             metalness: 0.1,
-            side: THREE.DoubleSide
+            side: THREE.DoubleSide,
+            envMapIntensity: 0.5
         });
         const grass = new THREE.Mesh(grassGeometry, grassMaterial);
         grass.rotation.x = -Math.PI / 2;
@@ -245,7 +246,7 @@ function createTrack() {
         grass.receiveShadow = true;
         scene.add(grass);
 
-        // Define track points for a more interesting circuit (10x larger)
+        // Define track points for a more interesting circuit
         const trackPoints = [
             // Start/Finish straight
             new THREE.Vector3(-400, 0.2, 0),
@@ -274,14 +275,15 @@ function createTrack() {
             new THREE.Vector3(-400, 0.2, 0)
         ];
 
-        // Create track surface using curved path
+        // Create track surface using curved path with better material
         const curve = new THREE.CatmullRomCurve3(trackPoints);
         const trackGeometry = new THREE.TubeGeometry(curve, 2000, 5, 8, false);
         const trackMaterial = new THREE.MeshStandardMaterial({
-            color: 0x808080, // Light gray
-            roughness: 0.7,
-            metalness: 0.3,
-            side: THREE.DoubleSide
+            color: 0x333333,
+            roughness: 0.6,
+            metalness: 0.4,
+            side: THREE.DoubleSide,
+            envMapIntensity: 1.0
         });
         const trackBase = new THREE.Mesh(trackGeometry, trackMaterial);
         trackBase.position.y = 0.1;
@@ -289,25 +291,25 @@ function createTrack() {
         trackBase.castShadow = true;
         scene.add(trackBase);
 
-        // Create track outline (the racing line)
+        // Create track outline with better visibility
         const trackLineGeometry = new THREE.BufferGeometry().setFromPoints(trackPoints);
         const trackLineMaterial = new THREE.LineBasicMaterial({ 
-            color: 0xffd700,
+            color: 0xffffff,
             opacity: 0.8,
             transparent: true,
             linewidth: 2
         });
         track = new THREE.Line(trackLineGeometry, trackLineMaterial);
-        track.position.y = 0.3; // Raise the line above the track
+        track.position.y = 0.3;
         scene.add(track);
 
-        // Create track barriers with reflective material
+        // Create track barriers with better material
         const barrierGeometry = new THREE.BoxGeometry(1, 1, 1);
         const barrierMaterial = new THREE.MeshStandardMaterial({
             color: 0xff0000,
-            roughness: 0.5,
-            metalness: 0.8,
-            envMapIntensity: 1.0
+            roughness: 0.3,
+            metalness: 0.9,
+            envMapIntensity: 1.5
         });
 
         // Create barriers along the track
@@ -318,13 +320,12 @@ function createTrack() {
                 const length = direction.length();
                 direction.normalize();
 
-                // Create multiple barrier segments
-                const segments = Math.floor(length / 20); // Adjusted for larger track
+                const segments = Math.floor(length / 20);
                 for (let i = 0; i < segments; i++) {
                     const barrier = new THREE.Mesh(barrierGeometry, barrierMaterial);
                     const position = point.clone().add(direction.clone().multiplyScalar(i * 20));
                     barrier.position.copy(position);
-                    barrier.scale.set(0.2, 0.5, 2); // Make barriers thin and tall
+                    barrier.scale.set(0.2, 0.5, 2);
                     barrier.castShadow = true;
                     barrier.receiveShadow = true;
                     scene.add(barrier);
@@ -332,7 +333,7 @@ function createTrack() {
             }
         });
 
-        // Create checkpoints with enhanced glow effect
+        // Create checkpoints with better glow effect
         trackPoints.forEach((point, index) => {
             if (index < trackPoints.length - 1) {
                 const checkpointGeometry = new THREE.SphereGeometry(0.5, 32, 32);
@@ -340,17 +341,18 @@ function createTrack() {
                     color: 0xffd700,
                     emissive: 0xffd700,
                     emissiveIntensity: 0.5,
-                    metalness: 0.8,
-                    roughness: 0.2
+                    metalness: 0.9,
+                    roughness: 0.1,
+                    envMapIntensity: 1.5
                 });
                 const checkpoint = new THREE.Mesh(checkpointGeometry, checkpointMaterial);
                 checkpoint.position.copy(point);
-                checkpoint.position.y += 0.2; // Raise checkpoints above track
+                checkpoint.position.y += 0.2;
                 checkpoint.castShadow = true;
                 checkpoint.receiveShadow = true;
                 scene.add(checkpoint);
 
-                // Add checkpoint number with glow effect
+                // Add checkpoint number with better visibility
                 const textGeometry = new THREE.PlaneGeometry(1, 1);
                 const textMaterial = new THREE.MeshBasicMaterial({
                     color: 0xffffff,
@@ -360,20 +362,20 @@ function createTrack() {
                 });
                 const textMesh = new THREE.Mesh(textGeometry, textMaterial);
                 textMesh.position.copy(point);
-                textMesh.position.y += 1.2; // Raise text above checkpoints
+                textMesh.position.y += 1.2;
                 scene.add(textMesh);
 
                 checkpoints.push({
                     mesh: checkpoint,
                     position: point,
-                    radius: 20, // Increased checkpoint radius for larger track
+                    radius: 20,
                     passed: false,
                     text: textMesh
                 });
             }
         });
 
-        // Add track decorations
+        // Add track decorations with better materials
         const decorationPositions = [
             new THREE.Vector3(-300, 0.2, 200),
             new THREE.Vector3(300, 0.2, -200),
@@ -382,93 +384,100 @@ function createTrack() {
         ];
 
         decorationPositions.forEach(pos => {
-            // Create traffic cone
+            // Create traffic cone with better material
             const coneGeometry = new THREE.ConeGeometry(0.3, 1, 32);
             const coneMaterial = new THREE.MeshStandardMaterial({
                 color: 0xff6600,
-                roughness: 0.7,
-                metalness: 0.3,
+                roughness: 0.5,
+                metalness: 0.5,
                 emissive: 0xff6600,
-                emissiveIntensity: 0.2
+                emissiveIntensity: 0.2,
+                envMapIntensity: 1.0
             });
             const cone = new THREE.Mesh(coneGeometry, coneMaterial);
             cone.position.copy(pos);
-            cone.position.y += 0.2; // Raise cones above track
+            cone.position.y += 0.2;
             cone.castShadow = true;
             cone.receiveShadow = true;
             scene.add(cone);
 
-            // Add track signs
+            // Add track signs with better material
             const signGeometry = new THREE.PlaneGeometry(1, 1);
             const signMaterial = new THREE.MeshStandardMaterial({
                 color: 0xffffff,
-                roughness: 0.5,
-                metalness: 0.5
+                roughness: 0.3,
+                metalness: 0.7,
+                envMapIntensity: 1.5
             });
             const sign = new THREE.Mesh(signGeometry, signMaterial);
             sign.position.copy(pos);
-            sign.position.y += 1.2; // Raise signs above track
+            sign.position.y += 1.2;
             sign.rotation.y = Math.PI / 4;
             sign.castShadow = true;
             sign.receiveShadow = true;
             scene.add(sign);
         });
 
-        // Add track markings (start/finish line)
+        // Add track markings (start/finish line) with better material
         const startLineGeometry = new THREE.PlaneGeometry(2, 4);
         const startLineMaterial = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             emissive: 0xffffff,
-            emissiveIntensity: 0.5
+            emissiveIntensity: 0.5,
+            metalness: 0.9,
+            roughness: 0.1,
+            envMapIntensity: 1.5
         });
         const startLine = new THREE.Mesh(startLineGeometry, startLineMaterial);
         startLine.position.copy(trackPoints[0]);
-        startLine.position.y += 0.2; // Raise start line above track
+        startLine.position.y += 0.2;
         startLine.rotation.x = -Math.PI / 2;
         startLine.castShadow = true;
         startLine.receiveShadow = true;
         scene.add(startLine);
 
-        // Add ambient light to improve visibility
+        // Add better lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
         scene.add(ambientLight);
 
-        // Add directional light for better shadows
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
         directionalLight.position.set(5, 5, 5);
         directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 2048;
+        directionalLight.shadow.mapSize.height = 2048;
         scene.add(directionalLight);
 
-        log('Track created successfully with textures');
+        log('Track created successfully with enhanced materials');
     } catch (error) {
         console.error('Error creating track:', error);
         handleError(error, 'creating track');
     }
 }
 
-// Create the car
+// Create the car with enhanced materials
 function createCar() {
-    // Create a group to hold both car and Pokémon
     const vehicleGroup = new THREE.Group();
 
-    // Car body
+    // Car body with better material
     const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 4);
     const bodyMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xff0000,
-        metalness: 0.8,
-        roughness: 0.2
+        metalness: 0.9,
+        roughness: 0.2,
+        envMapIntensity: 1.5
     });
     const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
     body.castShadow = true;
     body.receiveShadow = true;
     vehicleGroup.add(body);
 
-    // Wheels
+    // Wheels with better material
     const wheelGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.4, 32);
     const wheelMaterial = new THREE.MeshStandardMaterial({ 
         color: 0x000000,
         metalness: 0.9,
-        roughness: 0.1
+        roughness: 0.1,
+        envMapIntensity: 1.5
     });
     
     const wheels = [];
@@ -487,10 +496,10 @@ function createCar() {
         vehicleGroup.add(wheel);
     });
 
-    // Create Pokémon character (Enhanced Pikachu)
+    // Create Pokémon character with enhanced materials
     const pokemonGroup = new THREE.Group();
     
-    // Main body (slightly egg-shaped)
+    // Main body with better material
     const pokemonBody = new THREE.Mesh(
         new THREE.SphereGeometry(0.8, 32, 32),
         new THREE.MeshStandardMaterial({ 
@@ -498,7 +507,8 @@ function createCar() {
             metalness: 0.3,
             roughness: 0.7,
             emissive: 0xFFFF00,
-            emissiveIntensity: 0.2
+            emissiveIntensity: 0.2,
+            envMapIntensity: 1.0
         })
     );
     pokemonBody.position.set(0, 1.2, 0);
@@ -506,7 +516,7 @@ function createCar() {
     pokemonBody.receiveShadow = true;
     pokemonGroup.add(pokemonBody);
 
-    // Head (slightly larger than body)
+    // Head with better material
     const headGeometry = new THREE.SphereGeometry(0.9, 32, 32);
     const head = new THREE.Mesh(
         headGeometry,
@@ -515,7 +525,8 @@ function createCar() {
             metalness: 0.3,
             roughness: 0.7,
             emissive: 0xFFFF00,
-            emissiveIntensity: 0.2
+            emissiveIntensity: 0.2,
+            envMapIntensity: 1.0
         })
     );
     head.position.set(0, 1.8, 0);
@@ -523,12 +534,13 @@ function createCar() {
     head.receiveShadow = true;
     pokemonGroup.add(head);
 
-    // Eyes (with white highlights)
+    // Eyes with better material
     const eyeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
     const eyeMaterial = new THREE.MeshStandardMaterial({ 
         color: 0x000000,
         metalness: 0.9,
-        roughness: 0.1
+        roughness: 0.1,
+        envMapIntensity: 1.5
     });
     
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
@@ -539,12 +551,13 @@ function createCar() {
     rightEye.position.set(0.3, 2.0, 0.7);
     pokemonGroup.add(rightEye);
 
-    // Eye highlights
+    // Eye highlights with better material
     const highlightGeometry = new THREE.SphereGeometry(0.05, 16, 16);
     const highlightMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xFFFFFF,
         metalness: 0.9,
-        roughness: 0.1
+        roughness: 0.1,
+        envMapIntensity: 1.5
     });
 
     const leftHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
@@ -555,12 +568,15 @@ function createCar() {
     rightHighlight.position.set(0.25, 2.05, 0.75);
     pokemonGroup.add(rightHighlight);
 
-    // Cheeks (with glow effect)
+    // Cheeks with better glow effect
     const cheekGeometry = new THREE.CircleGeometry(0.2, 32);
     const cheekMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xFF0000,
         emissive: 0xFF0000,
-        emissiveIntensity: 0.5
+        emissiveIntensity: 0.5,
+        metalness: 0.3,
+        roughness: 0.7,
+        envMapIntensity: 1.0
     });
     
     const leftCheek = new THREE.Mesh(cheekGeometry, cheekMaterial);
@@ -573,27 +589,29 @@ function createCar() {
     rightCheek.rotation.y = -Math.PI / 2;
     pokemonGroup.add(rightCheek);
 
-    // Nose
+    // Nose with better material
     const noseGeometry = new THREE.SphereGeometry(0.08, 16, 16);
     const nose = new THREE.Mesh(
         noseGeometry,
         new THREE.MeshStandardMaterial({ 
             color: 0x000000,
             metalness: 0.9,
-            roughness: 0.1
+            roughness: 0.1,
+            envMapIntensity: 1.5
         })
     );
     nose.position.set(0, 1.9, 0.8);
     pokemonGroup.add(nose);
 
-    // Ears (with black tips)
+    // Ears with better material
     const earGeometry = new THREE.ConeGeometry(0.4, 1.2, 32);
     const earMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xFFFF00,
         metalness: 0.3,
         roughness: 0.7,
         emissive: 0xFFFF00,
-        emissiveIntensity: 0.2
+        emissiveIntensity: 0.2,
+        envMapIntensity: 1.0
     });
     
     const leftEar = new THREE.Mesh(earGeometry, earMaterial);
@@ -608,12 +626,13 @@ function createCar() {
     rightEar.rotation.z = Math.PI / 6;
     pokemonGroup.add(rightEar);
 
-    // Ear tips
+    // Ear tips with better material
     const earTipGeometry = new THREE.ConeGeometry(0.15, 0.4, 32);
     const earTipMaterial = new THREE.MeshStandardMaterial({ 
         color: 0x000000,
         metalness: 0.9,
-        roughness: 0.1
+        roughness: 0.1,
+        envMapIntensity: 1.5
     });
 
     const leftEarTip = new THREE.Mesh(earTipGeometry, earTipMaterial);
