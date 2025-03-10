@@ -230,47 +230,161 @@ function createItems() {
 
 // Create the racing track
 function createTrack() {
-    const trackGeometry = new THREE.BufferGeometry();
-    const trackPoints = [
-        new THREE.Vector3(-20, 0.1, -20),
-        new THREE.Vector3(20, 0.1, -20),
-        new THREE.Vector3(20, 0.1, 20),
-        new THREE.Vector3(-20, 0.1, 20),
-        new THREE.Vector3(-20, 0.1, -20)
-    ];
-    
-    trackGeometry.setFromPoints(trackPoints);
-    const trackMaterial = new THREE.LineBasicMaterial({ 
-        color: 0xffd700,
-        opacity: 0.8,
-        transparent: true
-    });
-    track = new THREE.Line(trackGeometry, trackMaterial);
-    scene.add(track);
+    try {
+        // Load textures
+        const textureLoader = new THREE.TextureLoader();
+        const asphaltTexture = textureLoader.load('textures/asphalt.jpg');
+        const grassTexture = textureLoader.load('textures/grass.jpg');
 
-    // Create checkpoints with glow effect
-    trackPoints.forEach((point, index) => {
-        if (index < trackPoints.length - 1) {
-            const checkpointGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-            const checkpointMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffd700,
-                emissive: 0xffd700,
-                emissiveIntensity: 0.5
-            });
-            const checkpoint = new THREE.Mesh(checkpointGeometry, checkpointMaterial);
-            checkpoint.position.copy(point);
-            checkpoint.castShadow = true;
-            checkpoint.receiveShadow = true;
-            scene.add(checkpoint);
+        // Create track base (the actual racing surface)
+        const trackWidth = 10;
+        const trackGeometry = new THREE.PlaneGeometry(100, 100);
+        const trackMaterial = new THREE.MeshStandardMaterial({
+            map: asphaltTexture,
+            roughness: 0.8,
+            metalness: 0.2,
+            side: THREE.DoubleSide
+        });
+        const trackBase = new THREE.Mesh(trackGeometry, trackMaterial);
+        trackBase.rotation.x = -Math.PI / 2;
+        trackBase.position.y = 0.1;
+        trackBase.receiveShadow = true;
+        scene.add(trackBase);
 
-            checkpoints.push({
-                mesh: checkpoint,
-                position: point,
-                radius: 2,
-                passed: false
+        // Create grass around the track
+        const grassGeometry = new THREE.PlaneGeometry(1000, 1000);
+        const grassMaterial = new THREE.MeshStandardMaterial({
+            map: grassTexture,
+            roughness: 0.9,
+            metalness: 0.1,
+            side: THREE.DoubleSide
+        });
+        const grass = new THREE.Mesh(grassGeometry, grassMaterial);
+        grass.rotation.x = -Math.PI / 2;
+        grass.position.y = 0.05;
+        grass.receiveShadow = true;
+        scene.add(grass);
+
+        // Create track outline (the racing line)
+        const trackPoints = [
+            new THREE.Vector3(-20, 0.2, -20),
+            new THREE.Vector3(20, 0.2, -20),
+            new THREE.Vector3(20, 0.2, 20),
+            new THREE.Vector3(-20, 0.2, 20),
+            new THREE.Vector3(-20, 0.2, -20)
+        ];
+        
+        const trackLineGeometry = new THREE.BufferGeometry().setFromPoints(trackPoints);
+        const trackLineMaterial = new THREE.LineBasicMaterial({ 
+            color: 0xffd700,
+            opacity: 0.8,
+            transparent: true,
+            linewidth: 2
+        });
+        track = new THREE.Line(trackLineGeometry, trackLineMaterial);
+        scene.add(track);
+
+        // Create track barriers with reflective material
+        const barrierGeometry = new THREE.BoxGeometry(1, 1, 1);
+        const barrierMaterial = new THREE.MeshStandardMaterial({
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.8,
+            envMapIntensity: 1.0
+        });
+
+        // Create barriers along the track
+        trackPoints.forEach((point, index) => {
+            if (index < trackPoints.length - 1) {
+                const nextPoint = trackPoints[index + 1];
+                const direction = nextPoint.clone().sub(point);
+                const length = direction.length();
+                direction.normalize();
+
+                // Create multiple barrier segments
+                const segments = Math.floor(length / 2);
+                for (let i = 0; i < segments; i++) {
+                    const barrier = new THREE.Mesh(barrierGeometry, barrierMaterial);
+                    const position = point.clone().add(direction.clone().multiplyScalar(i * 2));
+                    barrier.position.copy(position);
+                    barrier.scale.set(0.2, 0.5, 2); // Make barriers thin and tall
+                    barrier.castShadow = true;
+                    barrier.receiveShadow = true;
+                    scene.add(barrier);
+                }
+            }
+        });
+
+        // Create checkpoints with enhanced glow effect
+        trackPoints.forEach((point, index) => {
+            if (index < trackPoints.length - 1) {
+                const checkpointGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+                const checkpointMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xffd700,
+                    emissive: 0xffd700,
+                    emissiveIntensity: 0.5,
+                    metalness: 0.8,
+                    roughness: 0.2
+                });
+                const checkpoint = new THREE.Mesh(checkpointGeometry, checkpointMaterial);
+                checkpoint.position.copy(point);
+                checkpoint.castShadow = true;
+                checkpoint.receiveShadow = true;
+                scene.add(checkpoint);
+
+                // Add checkpoint number with glow effect
+                const textGeometry = new THREE.PlaneGeometry(1, 1);
+                const textMaterial = new THREE.MeshBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                textMesh.position.copy(point);
+                textMesh.position.y += 1;
+                scene.add(textMesh);
+
+                checkpoints.push({
+                    mesh: checkpoint,
+                    position: point,
+                    radius: 2,
+                    passed: false,
+                    text: textMesh
+                });
+            }
+        });
+
+        // Add track decorations with enhanced materials
+        const decorationPositions = [
+            new THREE.Vector3(-15, 0.2, -15),
+            new THREE.Vector3(15, 0.2, -15),
+            new THREE.Vector3(15, 0.2, 15),
+            new THREE.Vector3(-15, 0.2, 15)
+        ];
+
+        decorationPositions.forEach(pos => {
+            // Create traffic cone with reflective material
+            const coneGeometry = new THREE.ConeGeometry(0.3, 1, 32);
+            const coneMaterial = new THREE.MeshStandardMaterial({
+                color: 0xff6600,
+                roughness: 0.7,
+                metalness: 0.3,
+                emissive: 0xff6600,
+                emissiveIntensity: 0.2
             });
-        }
-    });
+            const cone = new THREE.Mesh(coneGeometry, coneMaterial);
+            cone.position.copy(pos);
+            cone.castShadow = true;
+            cone.receiveShadow = true;
+            scene.add(cone);
+        });
+
+        log('Track created successfully with textures');
+    } catch (error) {
+        console.error('Error creating track:', error);
+        handleError(error, 'creating track');
+    }
 }
 
 // Create the car
