@@ -80,6 +80,25 @@ export function Car() {
     // Update physics body
     api.position.set(position.x, position.y, position.z);
     api.rotation.set(rotation.x, rotation.y, rotation.z);
+
+    // Update camera position based on POV mode
+    if (isPOVMode) {
+      // First-person POV camera (closer to dashboard)
+      state.camera.position.x = position.x;
+      state.camera.position.y = position.y + 0.8; // Lower eye level
+      state.camera.position.z = position.z;
+      
+      // Make camera look closer in front
+      const lookAtX = position.x + Math.sin(rotation.y) * 1;
+      const lookAtZ = position.z + Math.cos(rotation.y) * 1;
+      state.camera.lookAt(lookAtX, position.y + 0.8, lookAtZ);
+    } else {
+      // Third-person camera (closer to car)
+      state.camera.position.x = position.x;
+      state.camera.position.z = position.z + 4; // Reduced from 20 to 4
+      state.camera.position.y = 2; // Reduced from 10 to 2
+      state.camera.lookAt(position.x, position.y, position.z);
+    }
   });
 
   return (

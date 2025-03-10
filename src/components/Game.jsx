@@ -17,8 +17,12 @@ export function Game() {
         <Suspense fallback={null}>
           <Physics>
             <Environment preset="sunset" />
-            <PerspectiveCamera makeDefault position={[0, 5, 10]} />
-            <OrbitControls />
+            <PerspectiveCamera makeDefault position={[0, 1, 2]} />
+            <OrbitControls 
+              minDistance={1}
+              maxDistance={5}
+              target={[0, 0, 0]}
+            />
             
             {/* Lighting */}
             <ambientLight intensity={0.5} />
