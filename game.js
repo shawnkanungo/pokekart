@@ -17,6 +17,24 @@ let pokemon = {
     cooldown: 0
 };
 
+// Debug logging
+const DEBUG = true;
+function log(...args) {
+    if (DEBUG) {
+        console.log('[PokéKart]', ...args);
+    }
+}
+
+// Error handling
+function handleError(error, context) {
+    console.error(`[PokéKart] Error in ${context}:`, error);
+    const errorElement = document.getElementById('error');
+    if (errorElement) {
+        errorElement.style.display = 'block';
+        errorElement.textContent = `Error in ${context}: ${error.message}`;
+    }
+}
+
 // Power-up types
 const POWER_UPS = {
     MUSHROOM: { name: 'Mushroom', effect: 'speed', duration: 5, color: 0xff0000 },
@@ -34,21 +52,29 @@ const ITEMS = {
 // Initialize the game
 function init() {
     try {
+        log('Starting game initialization...');
+        
         // Create scene with colorful background
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB); // Sky blue
+        log('Scene created');
 
         // Create camera
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 5, 10);
         camera.lookAt(0, 0, 0);
+        log('Camera created');
 
         // Create renderer
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({ 
+            antialias: true,
+            alpha: true
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         document.body.appendChild(renderer.domElement);
+        log('Renderer created and added to DOM');
 
         // Add lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -58,6 +84,7 @@ function init() {
         directionalLight.position.set(5, 5, 5);
         directionalLight.castShadow = true;
         scene.add(directionalLight);
+        log('Lighting added');
 
         // Create ground with grass texture
         const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
@@ -71,37 +98,41 @@ function init() {
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         scene.add(ground);
+        log('Ground created');
 
         // Create track
         createTrack();
+        log('Track created');
 
         // Create car
         createCar();
+        log('Car created');
 
         // Create power-ups and items
         createPowerUps();
         createItems();
+        log('Power-ups and items created');
 
         // Add event listeners
         window.addEventListener('resize', onWindowResize, false);
         document.addEventListener('keydown', onKeyDown);
         document.addEventListener('keyup', onKeyUp);
+        log('Event listeners added');
 
         // Hide loading screen
         const loadingScreen = document.getElementById('loading');
         if (loadingScreen) {
             loadingScreen.style.display = 'none';
+            log('Loading screen hidden');
         }
 
         // Start animation loop
         animate();
+        log('Animation loop started');
+
+        log('Game initialization complete!');
     } catch (error) {
-        console.error('Error initializing game:', error);
-        const errorElement = document.getElementById('error');
-        if (errorElement) {
-            errorElement.style.display = 'block';
-            errorElement.textContent = 'Error initializing game: ' + error.message;
-        }
+        handleError(error, 'game initialization');
     }
 }
 
@@ -548,4 +579,5 @@ function animate() {
 }
 
 // Start the game when the module is loaded
+log('Game module loaded, starting initialization...');
 init(); 
