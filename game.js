@@ -29,61 +29,76 @@ const ITEMS = {
 
 // Initialize the game
 function init() {
-    // Create scene with colorful background
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87CEEB); // Sky blue
+    try {
+        // Create scene with colorful background
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB); // Sky blue
 
-    // Create camera
-    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 5, 10);
-    camera.lookAt(0, 0, 0);
+        // Create camera
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 5, 10);
+        camera.lookAt(0, 0, 0);
 
-    // Create renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    document.body.appendChild(renderer.domElement);
+        // Create renderer
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
 
-    // Add lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-    scene.add(ambientLight);
+        // Add lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
 
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 5, 5);
-    directionalLight.castShadow = true;
-    scene.add(directionalLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
 
-    // Create ground with grass texture
-    const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
-    const groundMaterial = new THREE.MeshStandardMaterial({ 
-        color: 0x90EE90,
-        side: THREE.DoubleSide,
-        roughness: 0.8,
-        metalness: 0.2
-    });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    scene.add(ground);
+        // Create ground with grass texture
+        const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
+        const groundMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x90EE90,
+            side: THREE.DoubleSide,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
 
-    // Create track
-    createTrack();
+        // Create track
+        createTrack();
 
-    // Create car
-    createCar();
+        // Create car
+        createCar();
 
-    // Create power-ups and items
-    createPowerUps();
-    createItems();
+        // Create power-ups and items
+        createPowerUps();
+        createItems();
 
-    // Add event listeners
-    window.addEventListener('resize', onWindowResize, false);
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
+        // Add event listeners
+        window.addEventListener('resize', onWindowResize, false);
+        document.addEventListener('keydown', onKeyDown);
+        document.addEventListener('keyup', onKeyUp);
 
-    // Hide loading screen
-    document.getElementById('loading').style.display = 'none';
+        // Hide loading screen
+        const loadingScreen = document.getElementById('loading');
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+        }
+
+        // Start animation loop
+        animate();
+    } catch (error) {
+        console.error('Error initializing game:', error);
+        const errorElement = document.getElementById('error');
+        if (errorElement) {
+            errorElement.style.display = 'block';
+            errorElement.textContent = 'Error initializing game: ' + error.message;
+        }
+    }
 }
 
 // Create power-ups
@@ -528,6 +543,15 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-// Start the game
-init();
-animate(); 
+// Start the game when the page loads
+window.addEventListener('load', function() {
+    if (typeof THREE === 'undefined') {
+        const errorElement = document.getElementById('error');
+        if (errorElement) {
+            errorElement.style.display = 'block';
+            errorElement.textContent = 'Error: Three.js not loaded';
+        }
+        return;
+    }
+    init();
+}); 
