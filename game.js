@@ -16,6 +16,7 @@ let pokemon = {
     ability: 'Thunder',
     cooldown: 0
 };
+let isPOVMode = false;
 
 // Debug logging
 const DEBUG = true;
@@ -59,10 +60,10 @@ function init() {
         scene.background = new THREE.Color(0x87CEEB); // Sky blue
         log('Scene created');
 
-        // Create camera with adjusted position for larger track
+        // Create camera with POV settings
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.set(0, 25, 50); // Reduced height and distance
-        camera.lookAt(0, 0, 0);
+        camera.position.set(0, 1.5, 0); // Position at driver's eye level
+        camera.lookAt(0, 1.5, -5); // Look slightly down and forward
         log('Camera created');
 
         // Create renderer
@@ -707,6 +708,9 @@ function onKeyDown(event) {
         case 80: // P key for using power-up
             usePowerUp();
             break;
+        case 86: // V key for POV toggle
+            isPOVMode = !isPOVMode;
+            break;
     }
 }
 
@@ -827,11 +831,24 @@ function update() {
         car.boost -= 0.01;
     }
 
-    // Update camera position with adjusted distance for larger track
-    camera.position.x = car.mesh.position.x;
-    camera.position.z = car.mesh.position.z + 50; // Reduced from 100 to 50
-    camera.position.y = 25; // Reduced from 50 to 25
-    camera.lookAt(car.mesh.position);
+    // Update camera position based on POV mode
+    if (isPOVMode) {
+        // First-person POV camera
+        camera.position.x = car.mesh.position.x;
+        camera.position.y = car.mesh.position.y + 1.5; // Driver's eye level
+        camera.position.z = car.mesh.position.z;
+        
+        // Make camera look in the direction the car is facing
+        const lookAtX = car.mesh.position.x + Math.sin(car.mesh.rotation.y) * 5;
+        const lookAtZ = car.mesh.position.z + Math.cos(car.mesh.rotation.y) * 5;
+        camera.lookAt(lookAtX, car.mesh.position.y + 1.5, lookAtZ);
+    } else {
+        // Third-person camera
+        camera.position.x = car.mesh.position.x;
+        camera.position.z = car.mesh.position.z + 50;
+        camera.position.y = 25;
+        camera.lookAt(car.mesh.position);
+    }
 
     // Animate Pokémon
     if (car.speed > 0) {
@@ -931,6 +948,10 @@ function updateHUD() {
         document.getElementById('pokemonSprite').textContent = '⚡';
     } else {
         document.getElementById('pokemonSprite').textContent = '🐱';
+    }
+    const povStatus = document.getElementById('povStatus');
+    if (povStatus) {
+        povStatus.textContent = isPOVMode ? 'POV Mode: ON' : 'POV Mode: OFF';
     }
 }
 
