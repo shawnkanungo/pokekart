@@ -487,44 +487,146 @@ function createCar() {
         vehicleGroup.add(wheel);
     });
 
-    // Create Pokémon character (Pikachu-like shape)
+    // Create Pokémon character (Enhanced Pikachu)
     const pokemonGroup = new THREE.Group();
     
-    // Body
+    // Main body (slightly egg-shaped)
     const pokemonBody = new THREE.Mesh(
         new THREE.SphereGeometry(0.8, 32, 32),
-        new THREE.MeshStandardMaterial({ color: 0xFFFF00 })
+        new THREE.MeshStandardMaterial({ 
+            color: 0xFFFF00,
+            metalness: 0.3,
+            roughness: 0.7,
+            emissive: 0xFFFF00,
+            emissiveIntensity: 0.2
+        })
     );
     pokemonBody.position.set(0, 1.2, 0);
     pokemonBody.castShadow = true;
     pokemonBody.receiveShadow = true;
     pokemonGroup.add(pokemonBody);
 
-    // Eyes
+    // Head (slightly larger than body)
+    const headGeometry = new THREE.SphereGeometry(0.9, 32, 32);
+    const head = new THREE.Mesh(
+        headGeometry,
+        new THREE.MeshStandardMaterial({ 
+            color: 0xFFFF00,
+            metalness: 0.3,
+            roughness: 0.7,
+            emissive: 0xFFFF00,
+            emissiveIntensity: 0.2
+        })
+    );
+    head.position.set(0, 1.8, 0);
+    head.castShadow = true;
+    head.receiveShadow = true;
+    pokemonGroup.add(head);
+
+    // Eyes (with white highlights)
     const eyeGeometry = new THREE.SphereGeometry(0.15, 16, 16);
-    const eyeMaterial = new THREE.MeshStandardMaterial({ color: 0x000000 });
+    const eyeMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x000000,
+        metalness: 0.9,
+        roughness: 0.1
+    });
     
     const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    leftEye.position.set(-0.3, 1.4, 0.7);
+    leftEye.position.set(-0.3, 2.0, 0.7);
     pokemonGroup.add(leftEye);
 
     const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
-    rightEye.position.set(0.3, 1.4, 0.7);
+    rightEye.position.set(0.3, 2.0, 0.7);
     pokemonGroup.add(rightEye);
 
-    // Cheeks
+    // Eye highlights
+    const highlightGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+    const highlightMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xFFFFFF,
+        metalness: 0.9,
+        roughness: 0.1
+    });
+
+    const leftHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+    leftHighlight.position.set(-0.35, 2.05, 0.75);
+    pokemonGroup.add(leftHighlight);
+
+    const rightHighlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+    rightHighlight.position.set(0.25, 2.05, 0.75);
+    pokemonGroup.add(rightHighlight);
+
+    // Cheeks (with glow effect)
     const cheekGeometry = new THREE.CircleGeometry(0.2, 32);
-    const cheekMaterial = new THREE.MeshStandardMaterial({ color: 0xFF0000 });
+    const cheekMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xFF0000,
+        emissive: 0xFF0000,
+        emissiveIntensity: 0.5
+    });
     
     const leftCheek = new THREE.Mesh(cheekGeometry, cheekMaterial);
-    leftCheek.position.set(-0.8, 1.2, 0.7);
+    leftCheek.position.set(-0.8, 1.8, 0.7);
     leftCheek.rotation.y = Math.PI / 2;
     pokemonGroup.add(leftCheek);
 
     const rightCheek = new THREE.Mesh(cheekGeometry, cheekMaterial);
-    rightCheek.position.set(0.8, 1.2, 0.7);
+    rightCheek.position.set(0.8, 1.8, 0.7);
     rightCheek.rotation.y = -Math.PI / 2;
     pokemonGroup.add(rightCheek);
+
+    // Nose
+    const noseGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+    const nose = new THREE.Mesh(
+        noseGeometry,
+        new THREE.MeshStandardMaterial({ 
+            color: 0x000000,
+            metalness: 0.9,
+            roughness: 0.1
+        })
+    );
+    nose.position.set(0, 1.9, 0.8);
+    pokemonGroup.add(nose);
+
+    // Ears (with black tips)
+    const earGeometry = new THREE.ConeGeometry(0.4, 1.2, 32);
+    const earMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0xFFFF00,
+        metalness: 0.3,
+        roughness: 0.7,
+        emissive: 0xFFFF00,
+        emissiveIntensity: 0.2
+    });
+    
+    const leftEar = new THREE.Mesh(earGeometry, earMaterial);
+    leftEar.position.set(-0.5, 2.3, 0);
+    leftEar.rotation.x = -Math.PI / 4;
+    leftEar.rotation.z = -Math.PI / 6;
+    pokemonGroup.add(leftEar);
+
+    const rightEar = new THREE.Mesh(earGeometry, earMaterial);
+    rightEar.position.set(0.5, 2.3, 0);
+    rightEar.rotation.x = -Math.PI / 4;
+    rightEar.rotation.z = Math.PI / 6;
+    pokemonGroup.add(rightEar);
+
+    // Ear tips
+    const earTipGeometry = new THREE.ConeGeometry(0.15, 0.4, 32);
+    const earTipMaterial = new THREE.MeshStandardMaterial({ 
+        color: 0x000000,
+        metalness: 0.9,
+        roughness: 0.1
+    });
+
+    const leftEarTip = new THREE.Mesh(earTipGeometry, earTipMaterial);
+    leftEarTip.position.set(-0.5, 3.3, 0);
+    leftEarTip.rotation.x = -Math.PI / 4;
+    leftEarTip.rotation.z = -Math.PI / 6;
+    pokemonGroup.add(leftEarTip);
+
+    const rightEarTip = new THREE.Mesh(earTipGeometry, earTipMaterial);
+    rightEarTip.position.set(0.5, 3.3, 0);
+    rightEarTip.rotation.x = -Math.PI / 4;
+    rightEarTip.rotation.z = Math.PI / 6;
+    pokemonGroup.add(rightEarTip);
 
     // Add Pokémon to vehicle group
     vehicleGroup.add(pokemonGroup);
@@ -533,8 +635,8 @@ function createCar() {
         mesh: vehicleGroup,
         speed: 0,
         angle: 0,
-        acceleration: 1, // Increased for larger track
-        maxSpeed: 5, // Increased for larger track
+        acceleration: 1,
+        maxSpeed: 5,
         turnSpeed: 0.02,
         drift: false,
         boost: 0,
@@ -848,6 +950,30 @@ function resetGame() {
 function animate() {
     requestAnimationFrame(animate);
     update();
+    
+    // Animate Pikachu's ears and cheeks
+    if (car && car.pokemon) {
+        const time = Date.now() * 0.001;
+        
+        // Ears wiggle
+        car.pokemon.children.forEach(child => {
+            if (child.geometry instanceof THREE.ConeGeometry) {
+                if (child.position.x < 0) { // Left ear
+                    child.rotation.z = -Math.PI / 6 + Math.sin(time * 2) * 0.1;
+                } else if (child.position.x > 0) { // Right ear
+                    child.rotation.z = Math.PI / 6 + Math.sin(time * 2) * 0.1;
+                }
+            }
+        });
+
+        // Cheeks glow
+        car.pokemon.children.forEach(child => {
+            if (child.geometry instanceof THREE.CircleGeometry) {
+                child.material.emissiveIntensity = 0.5 + Math.sin(time * 3) * 0.2;
+            }
+        });
+    }
+    
     renderer.render(scene, camera);
 }
 
