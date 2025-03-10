@@ -1,0 +1,9 @@
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffe6f0; /* Light pink for kids' vibe */
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+} 
