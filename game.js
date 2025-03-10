@@ -231,15 +231,10 @@ function createItems() {
 // Create the racing track
 function createTrack() {
     try {
-        // Load textures
-        const textureLoader = new THREE.TextureLoader();
-        const asphaltTexture = textureLoader.load('textures/asphalt.jpg');
-        const grassTexture = textureLoader.load('textures/grass.jpg');
-
         // Create grass base
         const grassGeometry = new THREE.PlaneGeometry(1000, 1000);
-        const grassMaterial = new THREE.MeshStandardMaterial({
-            map: grassTexture,
+        const grassMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x90EE90,
             roughness: 0.9,
             metalness: 0.1,
             side: THREE.DoubleSide
@@ -272,17 +267,11 @@ function createTrack() {
         const curve = new THREE.CatmullRomCurve3(trackPoints);
         const trackGeometry = new THREE.TubeGeometry(curve, 100, 5, 8, false);
         const trackMaterial = new THREE.MeshStandardMaterial({
-            color: 0x333333,
-            roughness: 0.8,
-            metalness: 0.2,
-            side: THREE.DoubleSide,
-            map: asphaltTexture
+            color: 0x808080, // Light gray
+            roughness: 0.7,
+            metalness: 0.3,
+            side: THREE.DoubleSide
         });
-        
-        // Configure texture wrapping
-        trackMaterial.map.wrapS = THREE.RepeatWrapping;
-        trackMaterial.map.wrapT = THREE.RepeatWrapping;
-        trackMaterial.map.repeat.set(4, 1);
         const trackBase = new THREE.Mesh(trackGeometry, trackMaterial);
         trackBase.position.y = 0.1;
         trackBase.receiveShadow = true;
