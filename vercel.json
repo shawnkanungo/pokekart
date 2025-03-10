@@ -26,22 +26,18 @@
       "use": "@vercel/static"
     }
   ],
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/index.html"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
-      "src": "/images/(.*)",
-      "dest": "/images/$1"
+      "source": "/images/:path*",
+      "destination": "/images/:path*"
     },
     {
-      "src": "/sounds/(.*)",
-      "dest": "/sounds/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/sounds/:path*",
+      "destination": "/sounds/:path*"
     }
   ],
   "headers": [
