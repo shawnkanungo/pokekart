@@ -16,12 +16,28 @@
     {
       "src": "js/**/*.js",
       "use": "@vercel/static"
+    },
+    {
+      "src": "images/**/*",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "sounds/**/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/",
       "dest": "/index.html"
+    },
+    {
+      "src": "/images/(.*)",
+      "dest": "/images/$1"
+    },
+    {
+      "src": "/sounds/(.*)",
+      "dest": "/sounds/$1"
     },
     {
       "src": "/(.*)",
@@ -43,7 +59,16 @@
       ]
     },
     {
-      "source": "/assets/(.*)",
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/sounds/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
