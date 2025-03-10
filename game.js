@@ -138,56 +138,94 @@ function init() {
 
 // Create power-ups
 function createPowerUps() {
-    const powerUpPositions = [
-        new THREE.Vector3(-15, 0.5, -15),
-        new THREE.Vector3(15, 0.5, -15),
-        new THREE.Vector3(15, 0.5, 15),
-        new THREE.Vector3(-15, 0.5, 15)
-    ];
+    try {
+        const powerUpPositions = [
+            new THREE.Vector3(-15, 0.5, -15),
+            new THREE.Vector3(15, 0.5, -15),
+            new THREE.Vector3(15, 0.5, 15),
+            new THREE.Vector3(-15, 0.5, 15)
+        ];
 
-    powerUpPositions.forEach(pos => {
-        const powerUpGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-        const powerUpType = Object.values(POWER_UPS)[Math.floor(Math.random() * Object.keys(POWER_UPS).length)];
-        const powerUpMaterial = new THREE.MeshStandardMaterial({
-            color: powerUpType.color,
-            emissive: powerUpType.color,
-            emissiveIntensity: 0.5
+        // Clear existing power-ups array
+        powerUps = [];
+
+        powerUpPositions.forEach(pos => {
+            try {
+                const powerUpGeometry = new THREE.SphereGeometry(0.5, 32, 32);
+                const powerUpType = Object.values(POWER_UPS)[Math.floor(Math.random() * Object.keys(POWER_UPS).length)];
+                const powerUpMaterial = new THREE.MeshStandardMaterial({
+                    color: powerUpType.color,
+                    emissive: powerUpType.color,
+                    emissiveIntensity: 0.5
+                });
+                const powerUp = new THREE.Mesh(powerUpGeometry, powerUpMaterial);
+                powerUp.position.copy(pos);
+                powerUp.castShadow = true;
+                powerUp.receiveShadow = true;
+                powerUp.userData = { type: powerUpType };
+                powerUp.visible = true; // Explicitly set visibility
+                
+                if (scene) {
+                    scene.add(powerUp);
+                    powerUps.push(powerUp);
+                } else {
+                    console.error('Scene not initialized when creating power-ups');
+                }
+            } catch (error) {
+                console.error('Error creating individual power-up:', error);
+                handleError(error, 'creating individual power-up');
+            }
         });
-        const powerUp = new THREE.Mesh(powerUpGeometry, powerUpMaterial);
-        powerUp.position.copy(pos);
-        powerUp.castShadow = true;
-        powerUp.receiveShadow = true;
-        powerUp.userData = { type: powerUpType };
-        scene.add(powerUp);
-        powerUps.push(powerUp);
-    });
+    } catch (error) {
+        console.error('Error in createPowerUps:', error);
+        handleError(error, 'creating power-ups');
+    }
 }
 
 // Create items
 function createItems() {
-    const itemPositions = [
-        new THREE.Vector3(-10, 0.5, -10),
-        new THREE.Vector3(10, 0.5, -10),
-        new THREE.Vector3(10, 0.5, 10),
-        new THREE.Vector3(-10, 0.5, 10)
-    ];
+    try {
+        const itemPositions = [
+            new THREE.Vector3(-10, 0.5, -10),
+            new THREE.Vector3(10, 0.5, -10),
+            new THREE.Vector3(10, 0.5, 10),
+            new THREE.Vector3(-10, 0.5, 10)
+        ];
 
-    itemPositions.forEach(pos => {
-        const itemGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
-        const itemType = Object.values(ITEMS)[Math.floor(Math.random() * Object.keys(ITEMS).length)];
-        const itemMaterial = new THREE.MeshStandardMaterial({
-            color: itemType.color,
-            emissive: itemType.color,
-            emissiveIntensity: 0.5
+        // Clear existing items array
+        items = [];
+
+        itemPositions.forEach(pos => {
+            try {
+                const itemGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.5);
+                const itemType = Object.values(ITEMS)[Math.floor(Math.random() * Object.keys(ITEMS).length)];
+                const itemMaterial = new THREE.MeshStandardMaterial({
+                    color: itemType.color,
+                    emissive: itemType.color,
+                    emissiveIntensity: 0.5
+                });
+                const item = new THREE.Mesh(itemGeometry, itemMaterial);
+                item.position.copy(pos);
+                item.castShadow = true;
+                item.receiveShadow = true;
+                item.userData = { type: itemType };
+                item.visible = true; // Explicitly set visibility
+                
+                if (scene) {
+                    scene.add(item);
+                    items.push(item);
+                } else {
+                    console.error('Scene not initialized when creating items');
+                }
+            } catch (error) {
+                console.error('Error creating individual item:', error);
+                handleError(error, 'creating individual item');
+            }
         });
-        const item = new THREE.Mesh(itemGeometry, itemMaterial);
-        item.position.copy(pos);
-        item.castShadow = true;
-        item.receiveShadow = true;
-        item.userData = { type: itemType };
-        scene.add(item);
-        items.push(item);
-    });
+    } catch (error) {
+        console.error('Error in createItems:', error);
+        handleError(error, 'creating items');
+    }
 }
 
 // Create the racing track
@@ -390,57 +428,94 @@ function onKeyUp(event) {
 
 // Use current item
 function useItem() {
-    if (currentItem) {
-        switch(currentItem.type.effect) {
-            case 'catch':
-                // Catch nearby items
-                items.forEach(item => {
-                    if (item.mesh.position.distanceTo(car.mesh.position) < 5) {
-                        item.mesh.visible = false;
+    if (currentItem && currentItem.type) {
+        try {
+            switch(currentItem.type.effect) {
+                case 'catch':
+                    // Catch nearby items
+                    items.forEach(item => {
+                        if (item && item.mesh && item.mesh.visible !== undefined) {
+                            const distance = item.mesh.position.distanceTo(car.mesh.position);
+                            if (distance < 5) {
+                                item.mesh.visible = false;
+                            }
+                        }
+                    });
+                    break;
+                case 'heal':
+                    // Reset boost
+                    if (car && typeof car.boost === 'number') {
+                        car.boost = 1;
                     }
-                });
-                break;
-            case 'heal':
-                // Reset boost
-                car.boost = 1;
-                break;
-            case 'boost':
-                // Temporary speed boost
-                car.speed = Math.min(car.speed * 2, car.maxSpeed * 2);
-                break;
+                    break;
+                case 'boost':
+                    // Temporary speed boost
+                    if (car && typeof car.speed === 'number' && typeof car.maxSpeed === 'number') {
+                        car.speed = Math.min(car.speed * 2, car.maxSpeed * 2);
+                    }
+                    break;
+            }
+            currentItem = null;
+            const itemBox = document.getElementById('itemBox');
+            if (itemBox) {
+                itemBox.textContent = '🎁';
+            }
+        } catch (error) {
+            console.error('Error using item:', error);
+            handleError(error, 'using item');
         }
-        currentItem = null;
-        document.getElementById('itemBox').textContent = '🎁';
     }
 }
 
 // Use current power-up
 function usePowerUp() {
-    if (currentPowerUp) {
-        switch(currentPowerUp.type.effect) {
-            case 'speed':
-                car.maxSpeed *= 1.5;
-                setTimeout(() => car.maxSpeed /= 1.5, currentPowerUp.type.duration * 1000);
-                break;
-            case 'invincibility':
-                // Add invincibility effect
-                car.mesh.material.color.setHex(0xffff00);
-                setTimeout(() => car.mesh.material.color.setHex(0xff0000), currentPowerUp.type.duration * 1000);
-                break;
-            case 'attack':
-                // Use Pokémon ability
-                if (pokemon.cooldown <= 0) {
-                    pokemon.cooldown = 5;
-                    car.pokemon.material.color.setHex(0x00ffff);
-                    setTimeout(() => {
-                        car.pokemon.material.color.setHex(0xFFFF00);
-                        pokemon.cooldown = 0;
-                    }, 3000);
-                }
-                break;
+    if (currentPowerUp && currentPowerUp.type && car) {
+        try {
+            switch(currentPowerUp.type.effect) {
+                case 'speed':
+                    if (typeof car.maxSpeed === 'number') {
+                        car.maxSpeed *= 1.5;
+                        setTimeout(() => {
+                            if (typeof car.maxSpeed === 'number') {
+                                car.maxSpeed /= 1.5;
+                            }
+                        }, currentPowerUp.type.duration * 1000);
+                    }
+                    break;
+                case 'invincibility':
+                    if (car.mesh && car.mesh.material) {
+                        car.mesh.material.color.setHex(0xffff00);
+                        setTimeout(() => {
+                            if (car.mesh && car.mesh.material) {
+                                car.mesh.material.color.setHex(0xff0000);
+                            }
+                        }, currentPowerUp.type.duration * 1000);
+                    }
+                    break;
+                case 'attack':
+                    if (pokemon && typeof pokemon.cooldown === 'number' && pokemon.cooldown <= 0) {
+                        pokemon.cooldown = 5;
+                        if (car.pokemon && car.pokemon.material) {
+                            car.pokemon.material.color.setHex(0x00ffff);
+                            setTimeout(() => {
+                                if (car.pokemon && car.pokemon.material) {
+                                    car.pokemon.material.color.setHex(0xFFFF00);
+                                    pokemon.cooldown = 0;
+                                }
+                            }, 3000);
+                        }
+                    }
+                    break;
+            }
+            currentPowerUp = null;
+            const powerUpElement = document.getElementById('currentPowerUp');
+            if (powerUpElement) {
+                powerUpElement.textContent = '⚡';
+            }
+        } catch (error) {
+            console.error('Error using power-up:', error);
+            handleError(error, 'using power-up');
         }
-        currentPowerUp = null;
-        document.getElementById('currentPowerUp').textContent = '⚡';
     }
 }
 
@@ -485,23 +560,48 @@ function update() {
 
 // Check power-up collisions
 function checkPowerUps() {
+    if (!powerUps || !Array.isArray(powerUps)) return;
+    
     powerUps.forEach(powerUp => {
-        if (powerUp.mesh.visible && car.mesh.position.distanceTo(powerUp.mesh.position) < 2) {
-            powerUp.mesh.visible = false;
-            currentPowerUp = powerUp;
-            document.getElementById('currentPowerUp').textContent = '⚡';
-            document.getElementById('powerUp').textContent = powerUp.userData.type.name;
+        try {
+            if (powerUp && powerUp.mesh && powerUp.mesh.visible !== undefined && car && car.mesh) {
+                const distance = car.mesh.position.distanceTo(powerUp.mesh.position);
+                if (distance < 2) {
+                    powerUp.mesh.visible = false;
+                    currentPowerUp = powerUp;
+                    const powerUpElement = document.getElementById('currentPowerUp');
+                    const powerUpTextElement = document.getElementById('powerUp');
+                    if (powerUpElement) powerUpElement.textContent = '⚡';
+                    if (powerUpTextElement) powerUpTextElement.textContent = powerUp.userData.type.name;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking power-up collision:', error);
+            handleError(error, 'checking power-up collision');
         }
     });
 }
 
 // Check item collisions
 function checkItems() {
+    if (!items || !Array.isArray(items)) return;
+    
     items.forEach(item => {
-        if (item.mesh.visible && car.mesh.position.distanceTo(item.mesh.position) < 2) {
-            item.mesh.visible = false;
-            currentItem = item;
-            document.getElementById('itemBox').textContent = '🎁';
+        if (item && item.mesh && item.mesh.visible !== undefined && car && car.mesh) {
+            try {
+                const distance = car.mesh.position.distanceTo(item.mesh.position);
+                if (distance < 2) {
+                    item.mesh.visible = false;
+                    currentItem = item;
+                    const itemBox = document.getElementById('itemBox');
+                    if (itemBox) {
+                        itemBox.textContent = '🎁';
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking item collision:', error);
+                handleError(error, 'checking item collision');
+            }
         }
     });
 }
