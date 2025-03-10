@@ -40,8 +40,30 @@
             console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
             return false;
         };
+
+        // Load Three.js with fallback
+        function loadThreeJS() {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/three@0.162.0/build/three.min.js';
+            script.onerror = function() {
+                console.log('Primary Three.js CDN failed, trying fallback...');
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/0.162.0/three.min.js';
+                fallbackScript.onerror = function() {
+                    console.log('Fallback Three.js CDN failed, trying last resort...');
+                    const lastResortScript = document.createElement('script');
+                    lastResortScript.src = 'https://threejs.org/build/three.min.js';
+                    lastResortScript.onerror = checkThreeJS;
+                    document.head.appendChild(lastResortScript);
+                };
+                document.head.appendChild(fallbackScript);
+            };
+            document.head.appendChild(script);
+        }
+
+        // Start loading Three.js
+        loadThreeJS();
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.162.0/three.min.js" integrity="sha512-0rYcJjaqTGkofZ3Ywqxj6j9g8Mj4ZKW9s9QpYhU1EkwLxMEx5Tt0U9WtNp6tbHxJzP8MNoY4Ltm+YzeNfccz3Wz5I0g==" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="checkThreeJS()"></script>
     <style>
         body {
             margin: 0;
@@ -148,8 +170,8 @@
     <div class="item-box" id="itemBox">🎁</div>
     <div class="pokemon-sprite" id="pokemonSprite">🐱</div>
     <script>
-        // Wait for DOM to be ready before loading game
-        document.addEventListener('DOMContentLoaded', function() {
+        // Wait for Three.js to load before loading game
+        function loadGame() {
             if (checkThreeJS()) {
                 const script = document.createElement('script');
                 script.src = 'game.js';
@@ -161,8 +183,14 @@
                     }
                 };
                 document.body.appendChild(script);
+            } else {
+                // Retry after a short delay if Three.js isn't loaded yet
+                setTimeout(loadGame, 100);
             }
-        });
+        }
+
+        // Start loading game when DOM is ready
+        document.addEventListener('DOMContentLoaded', loadGame);
     </script>
 </body>
 </html> 
