@@ -8,6 +8,7 @@ import { PowerUps } from './PowerUps';
 import { Items } from './Items';
 import { Checkpoints } from './Checkpoints';
 import { HUD } from './HUD';
+import { ControlPanel } from './ControlPanel';
 
 export function Game() {
   return (
@@ -37,6 +38,7 @@ export function Game() {
         </Suspense>
       </Canvas>
       <HUD />
+      <ControlPanel />
     </div>
   );
 } 
