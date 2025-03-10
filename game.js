@@ -459,7 +459,7 @@ function createTrack() {
 function createCar() {
     const vehicleGroup = new THREE.Group();
 
-    // Car body with better material
+    // Main car body (lower part)
     const bodyGeometry = new THREE.BoxGeometry(2, 0.5, 4);
     const bodyMaterial = new THREE.MeshStandardMaterial({ 
         color: 0xff0000,
@@ -471,6 +471,32 @@ function createCar() {
     body.castShadow = true;
     body.receiveShadow = true;
     vehicleGroup.add(body);
+
+    // Car hood (sloped front)
+    const hoodGeometry = new THREE.BoxGeometry(2, 0.3, 1.5);
+    const hood = new THREE.Mesh(hoodGeometry, bodyMaterial);
+    hood.position.set(0, 0.4, 1.25);
+    hood.rotation.x = -Math.PI / 6;
+    hood.castShadow = true;
+    hood.receiveShadow = true;
+    vehicleGroup.add(hood);
+
+    // Car roof
+    const roofGeometry = new THREE.BoxGeometry(1.8, 0.8, 1.5);
+    const roof = new THREE.Mesh(roofGeometry, bodyMaterial);
+    roof.position.set(0, 1.2, 0.5);
+    roof.castShadow = true;
+    roof.receiveShadow = true;
+    vehicleGroup.add(roof);
+
+    // Car trunk (sloped rear)
+    const trunkGeometry = new THREE.BoxGeometry(2, 0.3, 1.5);
+    const trunk = new THREE.Mesh(trunkGeometry, bodyMaterial);
+    trunk.position.set(0, 0.4, -1.25);
+    trunk.rotation.x = Math.PI / 6;
+    trunk.castShadow = true;
+    trunk.receiveShadow = true;
+    vehicleGroup.add(trunk);
 
     // Wheels with better material
     const wheelGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.4, 32);
@@ -496,6 +522,66 @@ function createCar() {
         wheels.push(wheel);
         vehicleGroup.add(wheel);
     });
+
+    // Headlights
+    const headlightGeometry = new THREE.CircleGeometry(0.2, 32);
+    const headlightMaterial = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        emissive: 0xffffff,
+        emissiveIntensity: 0.5,
+        metalness: 0.9,
+        roughness: 0.1
+    });
+
+    const leftHeadlight = new THREE.Mesh(headlightGeometry, headlightMaterial);
+    leftHeadlight.position.set(-0.8, 0.5, 2);
+    leftHeadlight.rotation.y = Math.PI / 2;
+    vehicleGroup.add(leftHeadlight);
+
+    const rightHeadlight = new THREE.Mesh(headlightGeometry, headlightMaterial);
+    rightHeadlight.position.set(0.8, 0.5, 2);
+    rightHeadlight.rotation.y = -Math.PI / 2;
+    vehicleGroup.add(rightHeadlight);
+
+    // Taillights
+    const taillightGeometry = new THREE.CircleGeometry(0.2, 32);
+    const taillightMaterial = new THREE.MeshStandardMaterial({
+        color: 0xff0000,
+        emissive: 0xff0000,
+        emissiveIntensity: 0.5,
+        metalness: 0.9,
+        roughness: 0.1
+    });
+
+    const leftTaillight = new THREE.Mesh(taillightGeometry, taillightMaterial);
+    leftTaillight.position.set(-0.8, 0.5, -2);
+    leftTaillight.rotation.y = Math.PI / 2;
+    vehicleGroup.add(leftTaillight);
+
+    const rightTaillight = new THREE.Mesh(taillightGeometry, taillightMaterial);
+    rightTaillight.position.set(0.8, 0.5, -2);
+    rightTaillight.rotation.y = -Math.PI / 2;
+    vehicleGroup.add(rightTaillight);
+
+    // Windows
+    const windowGeometry = new THREE.PlaneGeometry(0.8, 0.6);
+    const windowMaterial = new THREE.MeshStandardMaterial({
+        color: 0x000000,
+        metalness: 0.9,
+        roughness: 0.1,
+        transparent: true,
+        opacity: 0.8
+    });
+
+    const leftWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+    leftWindow.position.set(-1, 1.2, 0.5);
+    leftWindow.rotation.y = Math.PI / 2;
+    vehicleGroup.add(leftWindow);
+
+    const rightWindow = new THREE.Mesh(windowGeometry, windowMaterial);
+    rightWindow.position.set(1, 1.2, 0.5);
+    rightWindow.rotation.y = -Math.PI / 2;
+    vehicleGroup.add(rightWindow);
 
     // Create Pokémon character with enhanced materials
     const pokemonGroup = new THREE.Group();
