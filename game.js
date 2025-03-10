@@ -60,10 +60,10 @@ function init() {
         scene.background = new THREE.Color(0x87CEEB); // Sky blue
         log('Scene created');
 
-        // Create camera with POV settings
+        // Create camera with closer initial position
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.set(0, 1.5, 0); // Position at driver's eye level
-        camera.lookAt(0, 1.5, -5); // Look slightly down and forward
+        camera.position.set(0, 1.2, 0); // Lower initial position
+        camera.lookAt(0, 1.2, -3); // Look closer in front
         log('Camera created');
 
         // Create renderer
@@ -919,20 +919,20 @@ function update() {
 
     // Update camera position based on POV mode
     if (isPOVMode) {
-        // First-person POV camera
+        // First-person POV camera (closer to dashboard)
         camera.position.x = car.mesh.position.x;
-        camera.position.y = car.mesh.position.y + 1.5; // Driver's eye level
+        camera.position.y = car.mesh.position.y + 1.2; // Lower eye level
         camera.position.z = car.mesh.position.z;
         
-        // Make camera look in the direction the car is facing
-        const lookAtX = car.mesh.position.x + Math.sin(car.mesh.rotation.y) * 5;
-        const lookAtZ = car.mesh.position.z + Math.cos(car.mesh.rotation.y) * 5;
-        camera.lookAt(lookAtX, car.mesh.position.y + 1.5, lookAtZ);
+        // Make camera look closer in front
+        const lookAtX = car.mesh.position.x + Math.sin(car.mesh.rotation.y) * 3;
+        const lookAtZ = car.mesh.position.z + Math.cos(car.mesh.rotation.y) * 3;
+        camera.lookAt(lookAtX, car.mesh.position.y + 1.2, lookAtZ);
     } else {
-        // Third-person camera
+        // Third-person camera (closer to car)
         camera.position.x = car.mesh.position.x;
-        camera.position.z = car.mesh.position.z + 50;
-        camera.position.y = 25;
+        camera.position.z = car.mesh.position.z + 20; // Reduced from 50 to 20
+        camera.position.y = 10; // Reduced from 25 to 10
         camera.lookAt(car.mesh.position);
     }
 
