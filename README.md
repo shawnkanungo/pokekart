@@ -34,6 +34,10 @@ This game is built using:
 - JavaScript for game logic
 - HTML5 and CSS3 for the interface
 
+## Deployment
+
+This project is automatically deployed to Vercel using GitHub Actions. Each push to the main branch triggers a new deployment.
+
 ## License
 
 MIT License 
