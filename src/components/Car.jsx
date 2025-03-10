@@ -4,10 +4,34 @@ import { useBox } from '@react-three/cannon';
 import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
+// Track boundary points (matching the track shape)
+const trackPoints = [
+  new THREE.Vector3(-400, 0.2, 0),
+  new THREE.Vector3(-200, 0.2, 0),
+  new THREE.Vector3(-100, 0.2, -100),
+  new THREE.Vector3(0, 0.2, -200),
+  new THREE.Vector3(200, 0.2, -200),
+  new THREE.Vector3(300, 0.2, -100),
+  new THREE.Vector3(400, 0.2, 0),
+  new THREE.Vector3(400, 0.2, 200),
+  new THREE.Vector3(300, 0.2, 300),
+  new THREE.Vector3(200, 0.2, 400),
+  new THREE.Vector3(0, 0.2, 400),
+  new THREE.Vector3(-200, 0.2, 300),
+  new THREE.Vector3(-300, 0.2, 200),
+  new THREE.Vector3(-300, 0.2, 0),
+  new THREE.Vector3(-400, 0.2, 0)
+];
+
+// Create track curve for boundary checking
+const trackCurve = new THREE.CatmullRomCurve3(trackPoints);
+const TRACK_WIDTH = 10; // Width of the track
+
 export function Car() {
   const [speed, setSpeed] = useState(0);
   const [rotation, setRotation] = useState(0);
   const [isPOVMode, setIsPOVMode] = useState(false);
+  const [lastValidPosition, setLastValidPosition] = useState(new THREE.Vector3(0, 0.5, 0));
   
   // Car physics
   const [ref, api] = useBox(() => ({
@@ -23,6 +47,23 @@ export function Car() {
 
   // Load car model
   const { nodes, materials } = useGLTF('/models/car.glb');
+
+  // Check if position is within track boundaries
+  const isOnTrack = (position) => {
+    // Find the closest point on the track curve
+    const closestPoint = trackCurve.getPointAt(
+      trackCurve.getUtoTmapping(
+        trackCurve.getClosestPoint(new THREE.Vector3(position.x, 0.2, position.z))
+      )
+    );
+
+    // Calculate distance from the car to the closest point on track
+    const distance = new THREE.Vector3(position.x, 0.2, position.z)
+      .distanceTo(closestPoint);
+
+    // Return true if within track width
+    return distance <= TRACK_WIDTH;
+  };
 
   // Handle keyboard controls
   React.useEffect(() => {
@@ -70,9 +111,22 @@ export function Car() {
     const position = ref.current.position;
     const rotation = ref.current.rotation;
 
-    // Apply movement
-    position.x += Math.sin(rotation.y) * speed * delta;
-    position.z += Math.cos(rotation.y) * speed * delta;
+    // Calculate new position
+    const newX = position.x + Math.sin(rotation.y) * speed * delta;
+    const newZ = position.z + Math.cos(rotation.y) * speed * delta;
+    const newPosition = new THREE.Vector3(newX, position.y, newZ);
+
+    // Check if new position is on track
+    if (isOnTrack(newPosition)) {
+      // Update position if on track
+      position.x = newX;
+      position.z = newZ;
+      setLastValidPosition(new THREE.Vector3(newX, position.y, newZ));
+    } else {
+      // Reset to last valid position if off track
+      position.copy(lastValidPosition);
+      setSpeed(0); // Stop the car
+    }
 
     // Apply rotation
     rotation.y += rotation * delta;
