@@ -5,12 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokéKart</title>
     <script>
+        // Safe element access
+        function getElement(id) {
+            return document.getElementById(id);
+        }
+
         // Check if Three.js is loaded
         function checkThreeJS() {
+            const loading = getElement('loading');
+            const error = getElement('error');
+            
             if (typeof THREE === 'undefined') {
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('error').style.display = 'block';
-                document.getElementById('error').textContent = 'Error: Three.js not loaded. Please check your internet connection and try again.';
+                if (loading) loading.style.display = 'none';
+                if (error) {
+                    error.style.display = 'block';
+                    error.textContent = 'Error: Three.js not loaded. Please check your internet connection and try again.';
+                }
                 console.error('Three.js not loaded');
                 return false;
             }
@@ -19,14 +29,19 @@
 
         // Error handling
         window.onerror = function(msg, url, lineNo, columnNo, error) {
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('error').textContent = 'Error loading game: ' + msg;
+            const loading = getElement('loading');
+            const errorElement = getElement('error');
+            
+            if (loading) loading.style.display = 'none';
+            if (errorElement) {
+                errorElement.style.display = 'block';
+                errorElement.textContent = 'Error loading game: ' + msg;
+            }
             console.error('Error: ' + msg + '\nURL: ' + url + '\nLine: ' + lineNo + '\nColumn: ' + columnNo + '\nError object: ' + JSON.stringify(error));
             return false;
         };
     </script>
-    <script src="js/lib/three.min.js" onerror="checkThreeJS()"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.162.0/three.min.js" integrity="sha512-0rYcJjaqTGkofZ3Ywqxj6j9g8Mj4ZKW9s9QpYhU1EkwLxMEx5Tt0U9WtNp6tbHxJzP8MNoY4Ltm+YzeNfccz3Wz5I0g==" crossorigin="anonymous" referrerpolicy="no-referrer" onerror="checkThreeJS()"></script>
     <style>
         body {
             margin: 0;
@@ -133,11 +148,18 @@
     <div class="item-box" id="itemBox">🎁</div>
     <div class="pokemon-sprite" id="pokemonSprite">🐱</div>
     <script>
-        // Wait for Three.js to load before loading game.js
-        window.addEventListener('load', function() {
+        // Wait for DOM to be ready before loading game
+        document.addEventListener('DOMContentLoaded', function() {
             if (checkThreeJS()) {
                 const script = document.createElement('script');
                 script.src = 'game.js';
+                script.onerror = function() {
+                    const error = getElement('error');
+                    if (error) {
+                        error.style.display = 'block';
+                        error.textContent = 'Error loading game.js. Please check your internet connection and try again.';
+                    }
+                };
                 document.body.appendChild(script);
             }
         });
