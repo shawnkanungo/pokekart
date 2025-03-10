@@ -236,22 +236,7 @@ function createTrack() {
         const asphaltTexture = textureLoader.load('textures/asphalt.jpg');
         const grassTexture = textureLoader.load('textures/grass.jpg');
 
-        // Create track base (the actual racing surface)
-        const trackWidth = 10;
-        const trackGeometry = new THREE.PlaneGeometry(100, 100);
-        const trackMaterial = new THREE.MeshStandardMaterial({
-            map: asphaltTexture,
-            roughness: 0.8,
-            metalness: 0.2,
-            side: THREE.DoubleSide
-        });
-        const trackBase = new THREE.Mesh(trackGeometry, trackMaterial);
-        trackBase.rotation.x = -Math.PI / 2;
-        trackBase.position.y = 0.1;
-        trackBase.receiveShadow = true;
-        scene.add(trackBase);
-
-        // Create grass around the track
+        // Create grass base
         const grassGeometry = new THREE.PlaneGeometry(1000, 1000);
         const grassMaterial = new THREE.MeshStandardMaterial({
             map: grassTexture,
@@ -265,15 +250,39 @@ function createTrack() {
         grass.receiveShadow = true;
         scene.add(grass);
 
-        // Create track outline (the racing line)
+        // Define track points for a more interesting circuit
         const trackPoints = [
-            new THREE.Vector3(-20, 0.2, -20),
-            new THREE.Vector3(20, 0.2, -20),
-            new THREE.Vector3(20, 0.2, 20),
-            new THREE.Vector3(-20, 0.2, 20),
-            new THREE.Vector3(-20, 0.2, -20)
+            // Start/Finish straight
+            new THREE.Vector3(-30, 0.2, 0),
+            new THREE.Vector3(-10, 0.2, 0),
+            // First curve
+            new THREE.Vector3(0, 0.2, -10),
+            new THREE.Vector3(10, 0.2, -20),
+            // Back straight
+            new THREE.Vector3(30, 0.2, -20),
+            // Second curve
+            new THREE.Vector3(20, 0.2, 0),
+            new THREE.Vector3(10, 0.2, 10),
+            // Final curve
+            new THREE.Vector3(-10, 0.2, 20),
+            new THREE.Vector3(-30, 0.2, 0)
         ];
-        
+
+        // Create track surface using curved path
+        const curve = new THREE.CatmullRomCurve3(trackPoints);
+        const trackGeometry = new THREE.TubeGeometry(curve, 100, 5, 8, false);
+        const trackMaterial = new THREE.MeshStandardMaterial({
+            map: asphaltTexture,
+            roughness: 0.8,
+            metalness: 0.2,
+            side: THREE.DoubleSide
+        });
+        const trackBase = new THREE.Mesh(trackGeometry, trackMaterial);
+        trackBase.position.y = 0.1;
+        trackBase.receiveShadow = true;
+        scene.add(trackBase);
+
+        // Create track outline (the racing line)
         const trackLineGeometry = new THREE.BufferGeometry().setFromPoints(trackPoints);
         const trackLineMaterial = new THREE.LineBasicMaterial({ 
             color: 0xffd700,
@@ -355,16 +364,16 @@ function createTrack() {
             }
         });
 
-        // Add track decorations with enhanced materials
+        // Add track decorations
         const decorationPositions = [
-            new THREE.Vector3(-15, 0.2, -15),
-            new THREE.Vector3(15, 0.2, -15),
-            new THREE.Vector3(15, 0.2, 15),
-            new THREE.Vector3(-15, 0.2, 15)
+            new THREE.Vector3(-20, 0.2, 10),
+            new THREE.Vector3(20, 0.2, -10),
+            new THREE.Vector3(10, 0.2, 20),
+            new THREE.Vector3(-10, 0.2, -20)
         ];
 
         decorationPositions.forEach(pos => {
-            // Create traffic cone with reflective material
+            // Create traffic cone
             const coneGeometry = new THREE.ConeGeometry(0.3, 1, 32);
             const coneMaterial = new THREE.MeshStandardMaterial({
                 color: 0xff6600,
@@ -378,7 +387,37 @@ function createTrack() {
             cone.castShadow = true;
             cone.receiveShadow = true;
             scene.add(cone);
+
+            // Add track signs
+            const signGeometry = new THREE.PlaneGeometry(1, 1);
+            const signMaterial = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                roughness: 0.5,
+                metalness: 0.5
+            });
+            const sign = new THREE.Mesh(signGeometry, signMaterial);
+            sign.position.copy(pos);
+            sign.position.y += 1;
+            sign.rotation.y = Math.PI / 4;
+            sign.castShadow = true;
+            sign.receiveShadow = true;
+            scene.add(sign);
         });
+
+        // Add track markings (start/finish line)
+        const startLineGeometry = new THREE.PlaneGeometry(2, 4);
+        const startLineMaterial = new THREE.MeshStandardMaterial({
+            color: 0xffffff,
+            emissive: 0xffffff,
+            emissiveIntensity: 0.5
+        });
+        const startLine = new THREE.Mesh(startLineGeometry, startLineMaterial);
+        startLine.position.copy(trackPoints[0]);
+        startLine.position.y += 0.1;
+        startLine.rotation.x = -Math.PI / 2;
+        startLine.castShadow = true;
+        startLine.receiveShadow = true;
+        scene.add(startLine);
 
         log('Track created successfully with textures');
     } catch (error) {
