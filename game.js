@@ -61,7 +61,7 @@ function init() {
 
         // Create camera with adjusted position for larger track
         camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
-        camera.position.set(0, 50, 100);
+        camera.position.set(0, 25, 50); // Reduced height and distance
         camera.lookAt(0, 0, 0);
         log('Camera created');
 
@@ -810,8 +810,8 @@ function update() {
 
     // Update camera position with adjusted distance for larger track
     camera.position.x = car.mesh.position.x;
-    camera.position.z = car.mesh.position.z + 100;
-    camera.position.y = 50;
+    camera.position.z = car.mesh.position.z + 50; // Reduced from 100 to 50
+    camera.position.y = 25; // Reduced from 50 to 25
     camera.lookAt(car.mesh.position);
 
     // Animate Pokémon
