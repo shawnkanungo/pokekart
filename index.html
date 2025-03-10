@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PokéKart</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script type="importmap">
         {
             "imports": {
@@ -163,21 +164,10 @@
         async function loadGame() {
             try {
                 if (checkThreeJS()) {
-                    const response = await fetch('game.js');
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    const script = document.createElement('script');
-                    script.type = 'module';
-                    script.src = 'game.js';
-                    script.onerror = function() {
-                        const error = getElement('error');
-                        if (error) {
-                            error.style.display = 'block';
-                            error.textContent = 'Error loading game.js. Please check your internet connection and try again.';
-                        }
-                    };
-                    document.body.appendChild(script);
+                    // Import game.js directly
+                    await import('./game.js');
+                    const loading = getElement('loading');
+                    if (loading) loading.style.display = 'none';
                 } else {
                     // Retry after a short delay if Three.js isn't loaded yet
                     setTimeout(loadGame, 100);
